@@ -1,0 +1,51 @@
+{% extends 'api/base.html' %}
+
+{% block title %}Espace Propriétaire - CinéParis{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="color: white; margin-bottom: 30px; font-family: var(--font-heading);">Tableau de bord Propriétaire</h1>
+        
+        <div style="background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color);">
+            <h2 style="color: var(--primary-color); margin-bottom: 20px;">Publier une nouvelle séance</h2>
+            <form id="publishForm">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Titre du film</label>
+                    <input type="text" placeholder="Ex: Avatar 2" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Durée (min)</label>
+                        <input type="number" placeholder="120" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                    </div>
+                    <div>
+                         <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Âge minimum</label>
+                        <select style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                            <option>Tous publics</option>
+                            <option>-12 ans</option>
+                            <option>-16 ans</option>
+                            <option>-18 ans</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Ville / Cinéma</label>
+                    <input type="text" placeholder="Ex: Paris 12 - MK2" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer; font-size: 1rem;">Publier l'annonce</button>
+            </form>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <h2 style="color: white; margin-bottom: 20px;">Mes films en cours</h2>
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; color: var(--text-muted); text-align: center;">
+                Aucun film publié pour le moment.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}CinéParis - Gestion et Réservations{% endblock %}
+    </title>
+
+    <!-- Google Fonts: Inter & Outfit for modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'api/css/style.css' %}" />
+
+    <!-- Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container">
+        <a href="{% url 'home' %}" class="logo">
+          <i class="fa-solid fa-film"></i> Ciné<span>Paris</span>
+        </a>
+        <nav>
+          <ul class="nav-links">
+            <li>
+              <a
+                href="{% url 'home' %}"
+                class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                >Accueil</a
+              >
+            </li>
+            <li><a href="#search">Films par ville</a></li>
+            <li>
+              <a href="{% url 'owner_dashboard' %}" class="btn-primary"
+                >Espace Pro</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>{% block content %} {% endblock %}</main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2025 CinéParis. Tous droits réservés.</p>
+        <div class="socials">
+          <a href="#"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        </div>
+      </div>
+    </footer>
+
+    {% block scripts %}
+    <script src="{% static 'api/js/main.js' %}"></script>
+    {% endblock %}
+  </body>
+</html>

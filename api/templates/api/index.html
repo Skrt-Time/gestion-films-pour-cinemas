@@ -1,0 +1,126 @@
+{% extends 'api/base.html' %}
+
+{% block title %}Accueil - CinéParis{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Découvrez les meilleurs films<br>à l'affiche à Paris</h1>
+        <p>Trouvez votre prochaine séance dans les cinémas de votre quartier.</p>
+
+        <div class="search-box">
+            <i class="fa-solid fa-location-dot"></i>
+            <input type="text" id="citySearch" placeholder="Entrez une ville (ex: Paris 12)">
+            <button id="btnSearch" class="btn-search">Rechercher</button>
+        </div>
+    </div>
+</section>
+
+<section id="movies-section" class="movies-container container">
+    <div class="section-header">
+        <h2>Films à l'affiche</h2>
+        <div class="filters">
+            <span class="active">Tous</span>
+            <span>Nouveautés</span>
+            <span>Coup de cœur</span>
+        </div>
+    </div>
+
+    <!-- Movie Grid (Filled by JS) -->
+    <div id="moviesGrid" class="movies-grid">
+        <!-- Mock Content for styling visualization if JS fails -->
+        <div class="loading-state">
+            <i class="fa-solid fa-spinner fa-spin"></i> Chargement des films...
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const grid = document.getElementById('moviesGrid');
+        const input = document.getElementById('citySearch');
+        const btn = document.getElementById('btnSearch');
+
+        // Fonction pour charger les films
+        async function loadMovies(city = '') {
+            grid.innerHTML = '<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Recherche en cours...</div>';
+
+            try {
+                let url = '/api/public/films/';
+                if (city) {
+                    url += `?ville=${encodeURIComponent(city)}`;
+                }
+
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Erreur réseau");
+
+                const films = await response.json();
+                renderMovies(films);
+            } catch (error) {
+                grid.innerHTML = '<div style="color: red; text-align: center;">Impossible de charger les films.</div>';
+                console.error(error);
+            }
+        }
+
+        // Fonction pour afficher les films
+        function renderMovies(films) {
+            grid.innerHTML = '';
+
+            if (films.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; grid-column: 1/-1; color: white;">Aucun film trouvé pour cette recherche.</div>';
+                return;
+            }
+
+            films.forEach(film => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                // Note: movie-card styling should be in CSS, assuming it exists or using inline style fallback
+                card.style.background = 'var(--card-bg)';
+                card.style.borderRadius = '12px';
+                card.style.overflow = 'hidden';
+                card.style.border = '1px solid var(--border-color)';
+                card.style.transition = 'transform 0.3s';
+                card.style.cursor = 'pointer';
+
+                // Gestion image
+                let imgHtml = '';
+                if (film.image_url) {
+                    imgHtml = `<img src="${film.image_url}" alt="${film.titre}" style="width: 100%; height: 350px; object-fit: cover;">`;
+                } else {
+                    imgHtml = `<div style="width: 100%; height: 350px; background: #333; display: flex; align-items: center; justify-content: center; color: white;">Pas d'affiche</div>`;
+                }
+
+                // Lien vers détails
+                card.onclick = () => window.location.href = `/film/${film.id}/`;
+
+                card.innerHTML = `
+                    <div class="card-image">
+                        ${imgHtml}
+                    </div>
+                    <div class="card-content" style="padding: 15px;">
+                        <span class="tag" style="background: var(--primary-color); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;">${film.age_min}</span>
+                        <h3 style="color: white; margin: 10px 0; font-size: 1.1rem;">${film.titre}</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">${film.realisateur}</p>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 5px;">🕑 ${film.duree}</p>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Événements
+        btn.addEventListener('click', () => {
+            loadMovies(input.value);
+        });
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadMovies(input.value);
+            }
+        });
+
+        // Chargement initial
+        loadMovies();
+    });
+</script>
+{% endblock %}

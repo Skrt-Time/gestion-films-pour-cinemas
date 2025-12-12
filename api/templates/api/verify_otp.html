@@ -1,0 +1,43 @@
+{% extends 'api/base.html' %}
+
+{% block title %}Vérification - CinéParis{% endblock %}
+
+{% block content %}
+<div class="container"
+    style="padding-top: 120px; padding-bottom: 60px; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div
+        style="background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 450px; text-align: center;">
+
+        <h2 style="color: white; margin-bottom: 20px;">Vérification Email</h2>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">
+            Un code a été envoyé à <strong>{{ email }}</strong>.
+        </p>
+
+        {% if dev_code %}
+        <div
+            style="background: rgba(255, 255, 0, 0.1); border: 1px solid yellow; color: #ffeb3b; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+            <i class="fa-solid fa-bug"></i> <strong>Mode Test</strong> : Votre code est <strong>{{ dev_code }}</strong>
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {% if error %}
+            <div
+                style="background: rgba(255, 0, 0, 0.1); border: 1px solid red; color: red; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 20px;">
+                <input type="text" name="otp_code" required placeholder="Entrez le code" maxlength="6"
+                    style="width: 100%; padding: 15px; font-size: 1.5rem; letter-spacing: 5px; text-align: center; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+            </div>
+
+            <button type="submit" class="btn-primary"
+                style="width: 100%; border: none; cursor: pointer;">Vérifier</button>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

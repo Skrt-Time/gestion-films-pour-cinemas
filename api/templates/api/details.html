@@ -1,0 +1,76 @@
+{% extends 'api/base.html' %}
+
+{% block title %}Détails du Film - CinéParis{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 120px; padding-bottom: 60px;">
+    <a href="{% url 'home' %}" style="color: var(--text-muted); margin-bottom: 20px; display: inline-block;">
+        <i class="fa-solid fa-arrow-left"></i> Retour à la liste
+    </a>
+
+    <div id="movie-detail-container">
+        <!-- JS will populate this -->
+        <div style="text-align: center; color: white;">Chargement...</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const filmId = parseInt("{{ film_id }}");
+        const container = document.getElementById('movie-detail-container');
+        
+        try {
+            const response = await fetch(`/api/public/films/${filmId}/`);
+            if (!response.ok) throw new Error('Film introuvable');
+            
+            const movie = await response.json();
+            
+            // Format sessions HTML
+            let sessionsHtml = '<p style="color: grey;">Aucune séance programmée.</p>';
+            if (movie.programmations && movie.programmations.length > 0) {
+                 sessionsHtml = movie.programmations.map(p => `
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: var(--primary-color);">${p.cinema.nom}</strong> <span style="color: #aaa;">(${p.cinema.ville})</span><br>
+                        <span style="font-size: 0.9rem; color: white;">
+                            <i class="fa-regular fa-calendar"></i> ${p.jours.replace(/,/g, ', ')} 
+                            <span style="margin-left: 10px; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">${p.heure.substring(0, 5)}</span>
+                        </span>
+                    </div>
+                 `).join('');
+            }
+
+            container.innerHTML = `
+                <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <img src="${movie.image_url}" alt="${movie.titre}" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    </div>
+                    <div style="flex: 2; color: white;">
+                        <h1 style="font-family: var(--font-heading); font-size: 3rem; margin-bottom: 10px;">${movie.titre}</h1>
+                        <div style="display: flex; gap: 15px; color: var(--text-muted); margin-bottom: 20px;">
+                            <span><i class="fa-regular fa-clock"></i> ${movie.duree}</span>
+                            <span><i class="fa-solid fa-video"></i> ${movie.realisateur}</span>
+                            <span style="border: 1px solid white; padding: 0 5px; border-radius: 4px;">${movie.age_min}</span>
+                        </div>
+                        
+                        <h3 style="margin-bottom: 10px; color: var(--primary-color);">Synopsis</h3>
+                        <p style="line-height: 1.8; margin-bottom: 30px; color: #ccc;">${movie.description}</p>
+                        
+                        <h3 style="margin-bottom: 10px; color: var(--primary-color);">Acteurs principaux</h3>
+                        <p style="margin-bottom: 30px;">${movie.acteurs}</p>
+
+                        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                            <h3 style="margin-bottom: 15px;"><i class="fa-regular fa-calendar-check"></i> Séances programmées</h3>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                ${sessionsHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = `<h2 style="color: var(--primary-color); text-align: center;">Impossible de charger les détails du film.</h2>`;
+        }
+    });
+</script>
+{% endblock %}

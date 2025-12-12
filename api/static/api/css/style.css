@@ -1,0 +1,293 @@
+:root {
+  --bg-color: #0d1117;
+  --card-bg: #161b22;
+  --primary-color: #e50914; /* Netflix Red vibe but modern */
+  --accent-color: #f5f5f5;
+  --text-color: #c9d1d9;
+  --text-muted: #8b949e;
+  --border-color: #30363d;
+  --font-heading: "Outfit", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --radius: 12px;
+  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+}
+ul {
+  list-style: none;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header */
+.navbar {
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(10px);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  border-bottom: 1px solid var(--border-color);
+  padding: 15px 0;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo span {
+  color: var(--primary-color);
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+.nav-links a {
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+.nav-links a:hover,
+.nav-links a.active {
+  color: #fff;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: #fff !important;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(229, 9, 20, 0.6);
+}
+
+/* Hero Section */
+.hero {
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: radial-gradient(
+    circle at center,
+    #1f293a 0%,
+    var(--bg-color) 70%
+  );
+  margin-top: 60px;
+  padding: 0 20px;
+}
+
+.hero h1 {
+  font-family: var(--font-heading);
+  font-size: 3.5rem;
+  line-height: 1.1;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+/* Search Box */
+.search-box {
+  background: var(--card-bg);
+  padding: 8px 8px 8px 24px;
+  border-radius: 50px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+  box-shadow: var(--shadow);
+}
+
+.search-box input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  flex-grow: 1;
+  font-size: 1rem;
+  outline: none;
+  margin-left: 10px;
+}
+
+.btn-search {
+  background: var(--primary-color);
+  border: none;
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-body);
+  transition: var(--transition);
+}
+.btn-search:hover {
+  filter: brightness(1.1);
+}
+
+/* Movies Section */
+.movies-container {
+  padding: 80px 20px;
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+.section-header h2 {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: #fff;
+}
+
+.filters span {
+  margin-left: 20px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+.filters span.active,
+.filters span:hover {
+  color: #fff;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 5px;
+}
+
+/* Grid */
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 30px;
+}
+
+/* Application Card */
+.movie-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+.movie-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.poster-wrapper {
+  width: 100%;
+  aspect-ratio: 2/3;
+  background-color: #2d333b;
+  position: relative;
+  overflow: hidden;
+}
+.poster-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.movie-card:hover .poster-wrapper img {
+  transform: scale(1.05);
+}
+
+.card-info {
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+.card-info h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 5px;
+}
+.card-info p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+.meta-info {
+  font-size: 0.8rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.btn-details {
+  margin-top: auto;
+  display: block;
+  text-align: center;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+.btn-details:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--border-color);
+  padding: 40px 0;
+  margin-top: 80px;
+  text-align: center;
+  color: var(--text-muted);
+}

@@ -1,0 +1,29 @@
+# 1. PYTHON (Fichiers compilés et temporaires)
+# On les retire car ils sont générés automatiquement et changent tout le temps.
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 2. ENVIRONNEMENT VIRTUEL (La boîte à outils)
+# On le retire car il est trop lourd et spécifique à ton ordinateur.
+# Les autres l'installeront via requirements.txt.
+venv/
+env/
+
+# 3. DJANGO (Données locales et sécurité)
+# db.sqlite3 : C'est ta base de données locale, chacun doit avoir la sienne.
+# local_settings.py : Peut contenir des mots de passe, ne jamais envoyer.
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# 4. CONFIGURATION ÉDITEUR (Préférences personnelles)
+# On ne force pas les collègues à utiliser les mêmes réglages VS Code.
+.vscode/
+.idea/
+
+# 5. SYSTÈME D'EXPLOITATION (Fichiers "poubelles")
+# Fichiers inutiles générés par Windows ou Mac pour l'affichage des dossiers.
+Thumbs.db
+.DS_Store

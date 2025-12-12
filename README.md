@@ -20,7 +20,7 @@ gestion-films-pour-cinemas/       <-- Racine
 ├── venv/                         <-- Environnement Virtuel (Bibliothèques)
 ├── db.sqlite3                    <-- Base de données
 └── manage.py                     <-- Script de gestion
-
+```
 
 [cite_start]Ce projet est une application Web orientée services REST permettant la gestion des projections de films dans les cinémas parisiens[cite: 3].
 [cite_start]Il respecte une architecture stricte en couches (Base de données + Accès + Service + Controller).

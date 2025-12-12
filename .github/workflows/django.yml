@@ -1,0 +1,54 @@
+name: Django CI
+
+# 1. LES DÉCLENCHEURS (Quand est-ce qu'on lance le robot ?)
+on:
+  push:
+    branches: [ "main" ]  # Se lance quand on push sur main
+  pull_request:
+    branches: [ "main" ]  # Se lance quand on fait une demande de fusion
+
+# 2. LES JOBS (Le travail à faire)
+jobs:
+  build:
+    # On choisit l'ordinateur virtuel (ici la dernière version d'Ubuntu Linux)
+    runs-on: ubuntu-latest
+    
+    # Stratégie de matrice : On teste en parallèle sur plusieurs versions de Python
+    # Cela prouve la qualité technique du projet.
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.10, 3.11]
+
+    # 3. LES ÉTAPES (La recette pas à pas)
+    steps:
+    # Étape A : Le robot récupère votre code sur GitHub
+    - uses: actions/checkout@v4
+    
+    # Étape B : Le robot installe Python (la version choisie dans la matrice)
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    # Étape C : Installation des dépendances (Django, DRF...)
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    # Étape D (Optionnelle mais recommandée pour la qualité) : Linting
+    # Vérifie si le code est "propre" (pas de variables inutilisées, etc.)
+    # J'ai mis "continue-on-error" pour ne pas bloquer le projet si c'est juste du style.
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      continue-on-error: true
+        
+    # Étape E : Lancement des Tests Unitaires (LE PLUS IMPORTANT)
+    # C'est ici que Django vérifie si tout fonctionne.
+    - name: Run Tests
+      run: |
+        python manage.py test

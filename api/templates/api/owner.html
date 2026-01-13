@@ -10,42 +10,362 @@
         <div style="background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color);">
             <h2 style="color: var(--primary-color); margin-bottom: 20px;">Publier une nouvelle séance</h2>
             <form id="publishForm">
+                {% csrf_token %}
+                <!-- CINEMA SELECTOR FOR PUBLICATION -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Sélectionnez votre Cinéma (Propriétaire)</label>
+                    <select id="publishCinemaSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                        {% for cinema in cinemas %}
+                            <option value="{{ cinema.id }}">{{ cinema.nom }} ({{ cinema.ville }})</option>
+                        {% empty %}
+                            <option value="">Aucun cinéma trouvé</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- FILM INFO -->
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Titre du film</label>
-                    <input type="text" placeholder="Ex: Avatar 2" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                    <input type="text" id="titre" name="titre" placeholder="Ex: Avatar 2" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Réalisateur</label>
+                    <input type="text" id="realisateur" name="realisateur" placeholder="Ex: James Cameron" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                     <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Acteurs</label>
+                     <input type="text" id="acteurs" name="acteurs" placeholder="Ex: Sam Worthington, Zoe Saldana..." required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                     <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Langue (Ex: VOSTFR, VF)</label>
+                     <input type="text" id="langue" name="langue" placeholder="Ex: Version Originale Sous-Titrée" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
-                        <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Durée (min)</label>
-                        <input type="number" placeholder="120" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                        <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Durée (ex: 2h 30min)</label>
+                        <input type="text" id="duree" name="duree" placeholder="2h 30min" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
                     </div>
                     <div>
                          <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Âge minimum</label>
-                        <select style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                        <select id="age_min" name="age_min" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
                             <option>Tous publics</option>
-                            <option>-12 ans</option>
-                            <option>-16 ans</option>
-                            <option>-18 ans</option>
+                            <option>12+</option>
+                            <option>16+</option>
+                            <option>18+</option>
                         </select>
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Ville / Cinéma</label>
-                    <input type="text" placeholder="Ex: Paris 12 - MK2" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                    <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Synopsis</label>
+                    <textarea id="description" name="description" rows="3" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;"></textarea>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                     <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">URL Image</label>
+                     <input type="url" id="image_url" name="image_url" placeholder="https://..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                </div>
+
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 30px 0;">
+                <h3 style="color: var(--primary-color); margin-bottom: 20px;">Programmation (Séance)</h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Date de début</label>
+                        <input type="date" id="date_debut" name="date_debut" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.9); color: black;">
+                    </div>
+                    <div>
+                        <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Date de fin</label>
+                        <input type="date" id="date_fin" name="date_fin" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.9); color: black;">
+                    </div>
+                </div>
+
+                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Jours (séparés par virgule)</label>
+                        <input type="text" id="jours" name="jours" placeholder="Lundi,Mercredi,Samedi" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                    </div>
+                    <div>
+                        <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Heure</label>
+                        <input type="time" id="heure" name="heure" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.9); color: black;">
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer; font-size: 1rem;">Publier l'annonce</button>
+                <div id="statusMessage" style="margin-top: 15px; text-align: center;"></div>
             </form>
+
+<script>
+// Variables Globales
+let isEditMode = false;
+let editProgId = null;
+let editFilmId = null;
+let loadedFilmsMap = {}; // Map ID -> Object
+
+async function loadMyFilms(cinemaId) {
+    const listContainer = document.getElementById('myFilmsList');
+    listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">Chargement...</div>';
+    loadedFilmsMap = {}; // Reset
+
+    if (!cinemaId) {
+        listContainer.innerHTML = '<div style="padding: 20px; text-align: center;">Aucun cinéma sélectionné pour la liste.</div>';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/cinemas/${cinemaId}/programmations/`);
+        if (!response.ok) throw new Error('Erreur chargement films');
+        const progs = await response.json();
+
+        if (progs.length === 0) {
+            listContainer.innerHTML = '<div style="padding: 20px; text-align: center;">Aucun film programmé pour ce cinéma.</div>';
+            return;
+        }
+
+        // Populate Map
+        progs.forEach(p => { loadedFilmsMap[p.id] = p; });
+
+        listContainer.innerHTML = progs.map(p => `
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px;">
+                <img src="${p.film.image_url}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px;">
+                <div style="flex: 1;">
+                    <h4 style="color: white; margin-bottom: 5px;">${p.film.titre}</h4>
+                    <div style="font-size: 0.85rem; color: #aaa;">
+                        <i class="fa-regular fa-clock"></i> ${p.jours} à ${p.heure.substring(0,5)}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #777;">
+                        ${p.cinema.nom} (${p.cinema.ville})
+                    </div>
+                </div>
+                <button onclick="editSeance(${p.id})" style="background: none; border: none; color: #ffca2c; cursor: pointer; font-size: 1.2rem; margin-right: 10px;" title="Modifier">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button onclick="deleteSeance(${p.id})" style="background: none; border: none; color: #e50914; cursor: pointer; font-size: 1.2rem;" title="Supprimer">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error(error);
+        listContainer.innerHTML = '<div style="color: #e50914; padding: 20px; text-align: center;">Erreur lors du chargement des films.</div>';
+    }
+}
+
+function editSeance(progId) {
+    const prog = loadedFilmsMap[progId];
+    if (!prog) return;
+
+    // 1. Passage en mode édition
+    isEditMode = true;
+    editProgId = progId;
+    editFilmId = prog.film.id;
+
+    // 2. Pré-remplissage du formulaire
+    const f = prog.film;
+    document.getElementById('titre').value = f.titre || '';
+    document.getElementById('realisateur').value = f.realisateur || '';
+    document.getElementById('acteurs').value = f.acteurs || '';
+    document.getElementById('langue').value = f.langue || 'Français';
+    document.getElementById('duree').value = f.duree || '';
+    document.getElementById('duree').value = f.duree || '';
+    document.getElementById('age_min').value = f.age_min || '';
+    document.getElementById('description').value = f.description || '';
+    document.getElementById('image_url').value = f.image_url || '';
+    
+    document.getElementById('date_debut').value = prog.date_debut;
+    document.getElementById('date_fin').value = prog.date_fin;
+    document.getElementById('jours').value = prog.jours;
+    document.getElementById('heure').value = prog.heure; 
+    
+    // Set form cinema selector too if needed?
+    // User wants independence. But if we edit a film from cinema A, the Publish selector should probably show Cinema A?
+    // Let's safe-set it if exists
+    const pubSelect = document.getElementById('publishCinemaSelect');
+    if(pubSelect) pubSelect.value = prog.cinema.id;
+
+    // 3. Changement visuel
+    const btn = document.querySelector('#publishForm button[type="submit"]');
+    btn.innerHTML = 'Modifier la publication';
+    btn.style.background = '#ffca2c';
+    btn.style.color = 'black';
+    
+    // Scroll vers le formulaire
+    document.getElementById('publishForm').scrollIntoView({behavior: 'smooth'});
+    
+    // Ajout bouton Annuler si pas déjà présent
+    if(!document.getElementById('cancelEditBtn')) {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.id = 'cancelEditBtn';
+        cancelBtn.type = 'button';
+        cancelBtn.innerText = 'Annuler';
+        cancelBtn.style.cssText = "width: 100%; padding: 15px; margin-top: 10px; background: #666; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;";
+        cancelBtn.onclick = resetEditMode;
+        document.getElementById('publishForm').appendChild(cancelBtn);
+    }
+}
+
+function resetEditMode() {
+    isEditMode = false;
+    editProgId = null;
+    editFilmId = null;
+    document.getElementById('publishForm').reset();
+    
+    const btn = document.querySelector('#publishForm button[type="submit"]');
+    btn.innerHTML = 'Publier le film';
+    btn.style.background = 'var(--primary-color)';
+    btn.style.color = 'white';
+    
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    if(cancelBtn) cancelBtn.remove();
+}
+
+async function deleteSeance(progId) {
+    if(!confirm("Voulez-vous vraiment supprimer cette séance et le film s'il n'a plus d'autre séance ?")) return;
+    
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const cinemaId = document.getElementById('myFilmsCinemaSelect').value; // Refresh specific list
+
+    try {
+        const response = await fetch(`/api/programmations/${progId}/`, {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': csrfToken }
+        });
+        
+        if (response.ok) {
+            loadMyFilms(cinemaId); // Refresh list
+        } else {
+            alert("Erreur lors de la suppression.");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Erreur réseau.");
+    }
+}
+
+// Initial load & Change Listener SECTION
+// Listener for Publish Form does NOT trigger loadMyFilms directly anymore?
+// Wait, if I publish for Cinema A, I probably want to see Cinema A list update IF Cinema A is selected in list.
+
+document.getElementById('publishForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const statusDiv = document.getElementById('statusMessage');
+    statusDiv.innerHTML = '<span style="color: white;">Traitement en cours...</span>';
+    
+    const cinemaId = document.getElementById('publishCinemaSelect').value; // Use Publish Cinema
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    const filmData = {
+        titre: document.getElementById('titre').value,
+        realisateur: document.getElementById('realisateur').value,
+        acteurs: document.getElementById('acteurs').value,
+        duree: document.getElementById('duree').value,
+        age_min: document.getElementById('age_min').value,
+        description: document.getElementById('description').value,
+        image_url: document.getElementById('image_url').value || "https://dummyimage.com/600x900/000/fff&text=Pas+d+image"
+    };
+
+    // Add Langue to filmData
+    // We need to add the input first in HTML
+    filmData.langue = document.getElementById('langue').value;
+
+    const progData = {
+        date_debut: document.getElementById('date_debut').value,
+        date_fin: document.getElementById('date_fin').value,
+        jours: document.getElementById('jours').value,
+        heure: document.getElementById('heure').value
+    };
+
+    try {
+        if (isEditMode) {
+            // MODE UPDATE
+            await fetch(`/api/films/${editFilmId}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify(filmData)
+            });
+            
+            const progResp = await fetch(`/api/programmations/${editProgId}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify(progData)
+            });
+            
+            if (!progResp.ok) throw new Error('Erreur modification séance');
+            
+            statusDiv.innerHTML = '<span style="color: #ffca2c;"><i class="fa-solid fa-check"></i> Modification enregistrée !</span>';
+            resetEditMode();
+            
+        } else {
+            // MODE CREATE
+            const filmResponse = await fetch(`/api/cinemas/${cinemaId}/films/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify(filmData)
+            });
+
+            if (!filmResponse.ok) throw new Error('Erreur création film');
+            const createdFilm = await filmResponse.json();
+            
+            const progResponse = await fetch(`/api/cinemas/${cinemaId}/films/${createdFilm.id}/programmations/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify(progData)
+            });
+
+            if (!progResponse.ok) throw new Error('Erreur création programmation');
+            statusDiv.innerHTML = '<span style="color: #4cd137;"><i class="fa-solid fa-check"></i> Film et séance publiés avec succès !</span>';
+            document.getElementById('publishForm').reset();
+        }
+
+        // Refresh List IF the selected list cinema matches the published cinema
+        const listCinemaId = document.getElementById('myFilmsCinemaSelect').value;
+        if(listCinemaId && listCinemaId === cinemaId) {
+            loadMyFilms(listCinemaId);
+        }
+
+    } catch (error) {
+        console.error(error);
+        statusDiv.innerHTML = `<span style="color: #e50914;"><i class="fa-solid fa-triangle-exclamation"></i> ${error.message}</span>`;
+    }
+});
+</script>
         </div>
 
         <div style="margin-top: 40px;">
             <h2 style="color: white; margin-bottom: 20px;">Mes films en cours</h2>
-            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; color: var(--text-muted); text-align: center;">
-                Aucun film publié pour le moment.
+             <!-- CINEMA SELECTOR FOR LIST -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Voir les films du cinéma :</label>
+                <select id="myFilmsCinemaSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white;">
+                    {% for cinema in cinemas %}
+                        <option value="{{ cinema.id }}">{{ cinema.nom }} ({{ cinema.ville }})</option>
+                    {% empty %}
+                        <option value="">Aucun cinéma trouvé</option>
+                    {% endfor %}
+                </select>
             </div>
-        </div>
+
+            <div id="myFilmsList" style="background: var(--card-bg); border-radius: 8px; color: var(--text-muted);">
+                <!-- Films loaded via JS -->
+                 <div style="padding: 20px; text-align: center;">Chargement...</div>
+            </div>
+            
+            <script>
+            // Separate script block for initialization to be sure elements exist
+            document.addEventListener('DOMContentLoaded', () => {
+                const listSelect = document.getElementById('myFilmsCinemaSelect');
+                if(listSelect) {
+                     listSelect.addEventListener('change', (e) => loadMyFilms(e.target.value));
+                     loadMyFilms(listSelect.value);
+                }
+            });
+            </script>
     </div>
 </div>
 {% endblock %}

@@ -40,12 +40,29 @@
                 >Accueil</a
               >
             </li>
-            <li><a href="#search">Films par ville</a></li>
-            <li>
-              <a href="{% url 'owner_dashboard' %}" class="btn-primary"
-                >Espace Pro</a
-              >
-            </li>
+            
+            {% if user.is_authenticated %}
+                <li>
+                  <a href="{% url 'favorites' %}" class="btn-primary" style="background: transparent; border: 1px solid var(--border-color); margin-right: 10px;">
+                    <i class="fa-solid fa-heart"></i> Mes Favoris
+                  </a>
+                </li>
+                {% if user.is_staff %}
+                <li>
+                  <a href="{% url 'owner_dashboard' %}" class="btn-primary">Espace Pro</a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{% url 'logout' %}" style="color: #e50914;">Déconnexion</a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="{% url 'login' %}">Connexion</a>
+                </li>
+                <li>
+                    <a href="{% url 'signup' %}" style="border: 1px solid var(--primary-color); padding: 8px 15px; border-radius: 20px; color: var(--primary-color);">S'inscrire</a>
+                </li>
+            {% endif %}
           </ul>
         </nav>
       </div>

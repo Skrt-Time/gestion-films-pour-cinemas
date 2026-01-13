@@ -1,0 +1,41 @@
+{% extends 'api/base.html' %}
+
+{% block title %}Connexion - CinéParis{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 120px; padding-bottom: 80px; display: flex; justify-content: center;">
+    <div style="background: var(--card-bg); padding: 40px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 450px;">
+        <h1 style="color: white; font-family: var(--font-heading); text-align: center; margin-bottom: 30px;">Connexion</h1>
+
+        {% if form.errors %}
+            <div style="background: rgba(229, 9, 20, 0.1); border: 1px solid #e50914; color: #ff6b6b; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                Identifiant ou mot de passe incorrect.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Nom d'utilisateur</label>
+                <input type="text" name="username" required autofocus
+                       style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white; outline: none;">
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <label style="display: block; color: var(--text-muted); margin-bottom: 8px;">Mot de passe</label>
+                <input type="password" name="password" required
+                       style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white; outline: none;">
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; font-size: 1.1rem; border: none; cursor: pointer;">
+                Se connecter
+            </button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+            Pas encore de compte ? Contactez l'administrateur.
+        </div>
+    </div>
+</div>
+{% endblock %}

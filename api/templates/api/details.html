@@ -45,10 +45,22 @@
                         <img src="${movie.image_url}" alt="${movie.titre}" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                     </div>
                     <div style="flex: 2; color: white;">
-                        <h1 style="font-family: var(--font-heading); font-size: 3rem; margin-bottom: 10px;">${movie.titre}</h1>
+                            <h1 style="font-family: var(--font-heading); font-size: 3rem; margin-bottom: 10px;">
+                            ${movie.titre}
+                            <div style="font-size: 4rem; color: #ffca2c; display: inline-block; vertical-align: middle; margin-left: 20px;">
+                                ${getStars(movie.average_rating)}
+                                <span style="font-size: 1.2rem; color: grey; display: block; text-align: center; margin-top: -10px;">
+                                    ${movie.average_rating > 0 ? movie.average_rating + '/5' : 'Pas encore noté'}
+                                </span>
+                            </div>
+                            <button id="favBtn" style="background: none; border: none; font-size: 2rem; color: #666; cursor: pointer; margin-left: 15px; transition: transform 0.2s; vertical-align: middle;" title="Ajouter aux favoris">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </h1>
                         <div style="display: flex; gap: 15px; color: var(--text-muted); margin-bottom: 20px;">
                             <span><i class="fa-regular fa-clock"></i> ${movie.duree}</span>
                             <span><i class="fa-solid fa-video"></i> ${movie.realisateur}</span>
+                            <span style="border: 1px solid white; padding: 0 5px; border-radius: 4px;">${movie.langue || 'Français'}</span>
                             <span style="border: 1px solid white; padding: 0 5px; border-radius: 4px;">${movie.age_min}</span>
                         </div>
                         
@@ -64,13 +76,175 @@
                                 ${sessionsHtml}
                             </div>
                         </div>
+
+                        <!-- SECTION AVIS -->
+                        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <h2 style="color: var(--primary-color); margin-bottom: 20px;">Avis Spectateurs</h2>
+                            
+                            <!-- FORMULAIRE -->
+                            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                                <h4 style="color: white; margin-bottom: 10px;">Donnez votre avis</h4>
+                                {% if user.is_authenticated %}
+                                <div id="reviewFormContainer">
+                                    <div class="star-rating" style="color: #ffca2c; font-size: 1.5rem; margin-bottom: 15px; cursor: pointer;">
+                                        <i class="fa-regular fa-star" data-value="1"></i>
+                                        <i class="fa-regular fa-star" data-value="2"></i>
+                                        <i class="fa-regular fa-star" data-value="3"></i>
+                                        <i class="fa-regular fa-star" data-value="4"></i>
+                                        <i class="fa-regular fa-star" data-value="5"></i>
+                                    </div>
+                                    <textarea id="reviewComment" placeholder="Qu'avez-vous pensé du film ?" style="width: 100%; padding: 10px; border-radius: 8px; border: none; margin-bottom: 10px;"></textarea>
+                                    <button id="submitReviewBtn" class="btn-primary" style="border: none; cursor: pointer;">Publier</button>
+                                </div>
+                                {% else %}
+                                    <p style="color: #ccc;"> <a href="{% url 'login' %}?next={{ request.path }}" style="color: var(--primary-color);">Connectez-vous</a> pour laisser un avis.</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- LISTE AVIS -->
+                            <div id="reviewsList">
+                                ${movie.reviews && movie.reviews.length > 0 ? movie.reviews.map(r => `
+                                    <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                            <div>
+                                                <strong style="color: white;">${r.username}</strong>
+                                                <span style="color: #ffca2c; margin-left: 10px;">${getStars(r.rating)}</span>
+                                            </div>
+                                            <div>
+                                                {% if user.is_staff %}
+                                                <button onclick="moderateReview(${r.id})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 0.9rem;" title="Modérer l'avis">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <p style="color: #ddd; margin: 0; font-style: ${r.comment.startsWith('[Modéré') ? 'italic' : 'normal'}; opacity: ${r.comment.startsWith('[Modéré') ? '0.7' : '1'};">${r.comment}</p>
+                                        <small style="color: #666;">${new Date(r.created_at).toLocaleDateString()}</small>
+                                    </div>
+                                `).join('') : '<p style="color: #777;">Soyez le premier à donner votre avis !</p>'}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             `;
+            
+            setupInteractions(filmId, movie);
+            
         } catch (error) {
             console.error(error);
             container.innerHTML = `<h2 style="color: var(--primary-color); text-align: center;">Impossible de charger les détails du film.</h2>`;
         }
     });
+
+    // Helper Etoiles
+    function getStars(rating) {
+        let stars = '';
+        const full = Math.floor(rating);
+        for(let i=0; i<full; i++) stars += '<i class="fa-solid fa-star"></i>';
+        if(rating % 1 !== 0) stars += '<i class="fa-solid fa-star-half-stroke"></i>';
+        for(let i=full + (rating % 1 !== 0 ? 1 : 0); i<5; i++) stars += '<i class="fa-regular fa-star"></i>';
+        return stars;
+    }
+    
+    // Fonction Modération
+    async function moderateReview(reviewId) {
+        if(!confirm("Voulez-vous modérer cet avis ? Le commentaire sera supprimé mais la note conservée.")) return;
+        
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const res = await fetch(`/api/reviews/${reviewId}/moderate/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken }
+            });
+            if(res.ok) {
+                alert('Avis modéré.');
+                location.reload();
+            } else {
+                alert('Erreur lors de la modération.');
+            }
+        } catch(err) { console.error(err); }
+    }
+
+    function setupInteractions(filmId, movie) {
+         // Logic Favoris
+        const favBtn = document.getElementById('favBtn');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : null;
+
+        // --- NEW: INITIAL STATE ---
+        // On récupère l'état initial injecté via Django Context
+        const isFavorite = "{{ is_favorite|yesno:'true,false' }}" === "true";
+        if (favBtn && isFavorite) {
+            favBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
+            favBtn.style.color = '#e50914';
+        }
+
+        if (favBtn) {
+            favBtn.addEventListener('click', async () => {
+                if(!csrfToken) {
+                    window.location.href = "{% url 'login' %}";
+                    return;
+                }
+                
+                try {
+                    const res = await fetch("{% url 'toggle_favorite' %}", {
+                       method: 'POST',
+                       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                       body: JSON.stringify({ film_id: filmId })
+                    });
+                     if(res.status === 401) window.location.href = "{% url 'login' %}";
+                     const data = await res.json();
+                     if(data.status === 'added') {
+                        favBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
+                        favBtn.style.color = '#e50914';
+                    } else {
+                        favBtn.innerHTML = '<i class="fa-regular fa-heart"></i>';
+                        favBtn.style.color = '#666';
+                    }
+                } catch(err) { console.error(err); }
+            });
+        }
+
+        // Logic Review Form
+        const starContainer = document.querySelector('.star-rating');
+        let selectedLocationRating = 5;
+
+        if(starContainer) {
+            const stars = starContainer.querySelectorAll('i');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    selectedLocationRating = e.target.getAttribute('data-value');
+                    stars.forEach(s => {
+                        if(s.getAttribute('data-value') <= selectedLocationRating) {
+                            s.classList.remove('fa-regular');
+                            s.classList.add('fa-solid');
+                        } else {
+                             s.classList.remove('fa-solid');
+                             s.classList.add('fa-regular');
+                        }
+                    });
+                });
+            });
+
+            document.getElementById('submitReviewBtn').addEventListener('click', async () => {
+                const comment = document.getElementById('reviewComment').value;
+                try {
+                     const res = await fetch("{% url 'create_review' %}", {
+                         method: 'POST',
+                         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                         body: JSON.stringify({ film_id: filmId, rating: selectedLocationRating, comment: comment })
+                     });
+                     
+                     if (res.ok) {
+                         alert('Merci pour votre avis !');
+                         location.reload(); // Simple reload to show new review
+                     } else {
+                         alert('Erreur lors de l\'envoi.');
+                     }
+                } catch(err) { console.error(err); }
+            });
+        }
+    }
 </script>
+{% csrf_token %} <!-- Need this for AJAX calls if user logged in -->
 {% endblock %}

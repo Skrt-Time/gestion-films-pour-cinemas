@@ -1,0 +1,115 @@
+{% extends 'api/base.html' %}
+{% load static %}
+
+{% block title %}Mes Favoris - CinéParis{% endblock %}
+
+{% block content %}
+<section class="movies-container container" style="min-height: 80vh;">
+    <!-- Header aligned with Home -->
+    <div class="section-header">
+        <h2 style="display: flex; align-items: center; gap: 10px;">
+            Mes Favoris <i class="fa-solid fa-heart" style="color: var(--primary-color); font-size: 1.5rem;"></i>
+        </h2>
+        <div class="filters">
+            <span class="active">Tous ({{ favorites|length }})</span>
+        </div>
+    </div>
+
+    {% if favorites %}
+    <div class="movies-grid">
+        {% for fav in favorites %}
+        <div class="movie-card" style="position: relative;">
+            
+            <!-- Poster Wrapper with Click to Detail -->
+            <div class="poster-wrapper" onclick="window.location.href='{% url 'movie_details' fav.film.id %}'" style="cursor: pointer;">
+                <img src="{{ fav.film.image_url }}" alt="{{ fav.film.titre }}">
+            </div>
+
+            <!-- Card Info -->
+            <div class="card-info">
+                <h3>{{ fav.film.titre }}</h3>
+                <p>De {{ fav.film.realisateur|default:"Inconnu" }}</p>
+                <div style="margin-top: auto; margin-bottom: 15px;">
+                    <span class="meta-info">{{ fav.film.age_min }}</span>
+                    <span class="meta-info">{{ fav.film.duree }}</span>
+                </div>
+                <a href="{% url 'movie_details' fav.film.id %}" class="btn-details">Voir les détails</a>
+            </div>
+
+            <!-- Delete Button (Overlay) -->
+            <button onclick="removeFavorite(event, {{ fav.film.id }})" class="btn-delete-fav" title="Retirer des favoris">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div style="text-align: center; color: var(--text-muted); padding: 80px 20px;">
+        <i class="fa-regular fa-heart" style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;"></i>
+        <h2 style="color: white; margin-bottom: 15px;">Votre liste est vide</h2>
+        <p style="margin-bottom: 30px;">Ajoutez des films à vos favoris en cliquant sur le cœur ❤️ dans les détails du film.</p>
+        <a href="{% url 'home' %}" class="btn-primary" style="display: inline-block;">Explorer les films</a>
+    </div>
+    {% endif %}
+
+</section>
+
+<style>
+    /* Custom style just for the delete button overlay */
+    .btn-delete-fav {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #dc3545;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        z-index: 10;
+        opacity: 0; /* Hidden by default for cleaner look */
+        transform: translateY(-5px);
+    }
+    
+    /* Show on card hover */
+    .movie-card:hover .btn-delete-fav {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .btn-delete-fav:hover {
+        background: #dc3545;
+        color: white;
+        border-color: #dc3545;
+        transform: scale(1.1) !important;
+    }
+</style>
+
+<script>
+    async function removeFavorite(event, filmId) {
+        event.stopPropagation(); // Prevents clicking the card
+        if(!confirm("Retirer ce film de vos favoris ?")) return;
+        
+        try {
+            const csrfToken = "{{ csrf_token }}";
+            const res = await fetch("{% url 'toggle_favorite' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({ film_id: filmId })
+            });
+            if(res.ok) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la suppression.');
+            }
+        } catch(err) { console.error(err); }
+    }
+</script>
+{% endblock %}

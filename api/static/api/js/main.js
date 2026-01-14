@@ -4,6 +4,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSearch = document.getElementById('btnSearch');
     const cityInput = document.getElementById('citySearch');
 
+    // Utility to prevent XSS
+    const escapeHtml = (unsafe) => {
+        if (!unsafe) return "";
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
     // Function to render movies
     function renderMovies(movies) {
         moviesGrid.innerHTML = '';
@@ -15,25 +26,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         movies.forEach(movie => {
             // Adaptation des données API vers le format d'affichage
-            // L'API retourne 'programmations' qui contient 'cinema'
             let cityDisplay = "Non programmé";
             if (movie.programmations && movie.programmations.length > 0) {
-                // On prend la ville de la première programmation comme exemple ou on liste
-                // Ici on fait simple
                 const cities = [...new Set(movie.programmations.map(p => p.cinema.ville))];
-                cityDisplay = cities.join(', ');
+                cityDisplay = cities.map(c => escapeHtml(c)).join(', ');
             }
 
             const card = document.createElement('div');
             card.className = 'movie-card';
             card.innerHTML = `
                 <div class="poster-wrapper">
-                    <img src="${movie.image_url}" alt="${movie.titre}">
+                    <img src="${escapeHtml(movie.image_url)}" alt="${escapeHtml(movie.titre)}" onerror="this.src='https://dummyimage.com/600x900/000/fff&text=Poster+Manquant'">
                 </div>
                 <div class="card-info">
-                    <div class="meta-info">${movie.age_min}</div>
-                    <h3>${movie.titre}</h3>
-                    <p>${movie.realisateur} • ${movie.duree}</p>
+                    <div class="meta-info">${escapeHtml(movie.age_min)}</div>
+                    <h3>${escapeHtml(movie.titre)}</h3>
+                    <p>${escapeHtml(movie.realisateur)} • ${escapeHtml(movie.duree)}</p>
                     <p><i class="fa-solid fa-location-dot"></i> ${cityDisplay}</p>
                     <a href="/film/${movie.id}/" class="btn-details">Voir les détails</a>
                 </div>

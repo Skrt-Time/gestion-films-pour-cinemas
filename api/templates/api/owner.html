@@ -129,16 +129,26 @@ async function loadMyFilms(cinemaId) {
         // Populate Map
         progs.forEach(p => { loadedFilmsMap[p.id] = p; });
 
+        // Utility to prevent XSS
+        const escapeHtml = (unsafe) => {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
         listContainer.innerHTML = progs.map(p => `
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px;">
-                <img src="${p.film.image_url}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px;">
+                <img src="${escapeHtml(p.film.image_url)}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://dummyimage.com/50x75/000/fff&text=X'">
                 <div style="flex: 1;">
-                    <h4 style="color: white; margin-bottom: 5px;">${p.film.titre}</h4>
+                    <h4 style="color: white; margin-bottom: 5px;">${escapeHtml(p.film.titre)}</h4>
                     <div style="font-size: 0.85rem; color: #aaa;">
-                        <i class="fa-regular fa-clock"></i> ${p.jours} à ${p.heure.substring(0,5)}
+                        <i class="fa-regular fa-clock"></i> ${escapeHtml(p.jours)} à ${p.heure.substring(0,5)}
                     </div>
                     <div style="font-size: 0.8rem; color: #777;">
-                        ${p.cinema.nom} (${p.cinema.ville})
+                        ${escapeHtml(p.cinema.nom)} (${escapeHtml(p.cinema.ville)})
                     </div>
                 </div>
                 <button onclick="editSeance(${p.id})" style="background: none; border: none; color: #ffca2c; cursor: pointer; font-size: 1.2rem; margin-right: 10px;" title="Modifier">

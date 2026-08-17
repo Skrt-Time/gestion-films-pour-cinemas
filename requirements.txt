@@ -2,6 +2,6 @@ asgiref==3.11.0
 Django
 django-cors-headers
 djangorestframework
-sqlparse==0.5.4
+sqlparse==0.6.0
 tzdata==2025.2
 
